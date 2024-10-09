@@ -28,7 +28,7 @@ Bash
 
 ### Пример работы программы
 
-![Screenshot of a comment on a GitHub issue showing an image, added in the Markdown, of an Octocat smiling and raising a tentacle.](https://myoctocat.com/assets/images/base-octocat.svg)
+![Снимок экрана 2024-10-10 000531](https://github.com/user-attachments/assets/3152bcb0-f412-40fc-a9eb-38825aef2467)
 
 ### Тестирование
 
