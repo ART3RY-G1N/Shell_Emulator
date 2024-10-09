@@ -24,7 +24,7 @@ Bash
 
    python shell_emulator.py <username> <hostname> <path_to_vfs.tar>
    
-Замените <username>, <hostname> и <path_to_vfs.tar> на соответствующие значения.
+Замените \<username\>, \<hostname\> и \<path_to_vfs.tar\> на соответствующие значения.
 
 ### Пример работы программы
 
