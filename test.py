@@ -6,31 +6,32 @@ from shell import ShellEmulator
 class ShellEmulatorTests(unittest.TestCase):
 
     def setUp(self):
-        self.emulator = ShellEmulator('user', 'hostname', 'test.tar')
+        self.emulator = ShellEmulator('user', 'hostname', 'filesystem.tar')
 
     def test_load_virtual_fs(self):
         # Убеждаемся, что файл test.tar загружен
-        self.assertTrue('filesystem/test.txt' in self.emulator.fs)
-        self.assertTrue('filesystem/dir1/test2.txt' in self.emulator.fs)
-        self.assertTrue('filesystem/dir1' in self.emulator.fs)
+        self.assertTrue('filesystem/test/test.txt' in self.emulator.fs)
+        self.assertTrue('filesystem/C' in self.emulator.fs)
+        self.assertTrue('filesystem/D' in self.emulator.fs)
 
     def test_ls(self):
         # Проверяем вывод команды ls
         with patch('builtins.print') as mock_print:
             self.emulator.ls()
-            mock_print.assert_any_call('test.txt')
-            mock_print.assert_any_call('dir1/')
+            mock_print.assert_any_call('test/')
+            mock_print.assert_any_call('D/')
+            mock_print.assert_any_call('C/')
 
         # Проверяем вывод ls из поддиректории
-        self.emulator.cd('dir1')
+        self.emulator.cd('C')
         with patch('builtins.print') as mock_print:
             self.emulator.ls()
-            mock_print.assert_any_call('test2.txt')
+            mock_print.assert_any_call('users/')
 
     def test_cd(self):
         # Проверяем переход в поддиректорию
-        self.emulator.cd('dir1')
-        self.assertEqual(self.emulator.current_dir, 'filesystem/dir1')
+        self.emulator.cd('D')
+        self.assertEqual(self.emulator.current_dir, 'filesystem/D')
 
         # Проверяем переход на уровень вверх
         self.emulator.cd('..')
@@ -53,8 +54,8 @@ class ShellEmulatorTests(unittest.TestCase):
     def test_changeOwner(self):
         # Тестируем изменение владельца
         with patch('builtins.print') as mock_print:
-            self.emulator.changeOwner('filesystem/test.txt', 'new_owner')
-            mock_print.assert_any_call("Владелец для 'filesystem/test.txt' изменён на 'new_owner'.")
+            self.emulator.changeOwner('filesystem/test/test.txt', 'new_owner')
+            mock_print.assert_any_call("Владелец для 'filesystem/test/test.txt' изменён на 'new_owner'.")
 
         # Тестируем изменение владельца для несуществующего файла
         with patch('builtins.print') as mock_print:
@@ -65,12 +66,13 @@ class ShellEmulatorTests(unittest.TestCase):
         # Тестируем вывод перевернутого содержимого файла
         with patch('builtins.print') as mock_print:
             self.emulator.reverse('filesystem/test.txt')
-            mock_print.assert_any_call("txet.tset")
+            mock_print.assert_any_call("54321")
+            mock_print.assert_any_call("09876")
 
         # Тестируем вывод для директории
         with patch('builtins.print') as mock_print:
-            self.emulator.reverse('filesystem/dir1')
-            mock_print.assert_any_call("'filesystem/dir1' - это директория.")
+            self.emulator.reverse('filesystem/D')
+            mock_print.assert_any_call("'filesystem/D' - это директория.")
 
         # Тестируем вывод для несуществующего файла
         with patch('builtins.print') as mock_print:
