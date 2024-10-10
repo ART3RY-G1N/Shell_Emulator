@@ -1,6 +1,7 @@
 import os
 import tarfile
 import argparse
+
 import psutil
 import datetime
 
@@ -14,7 +15,7 @@ class ShellEmulator:
         self.load_virtual_fs(tar_path)
 
     def load_virtual_fs(self, tar_path):
-        """Загружает виртуальную файловую систему из tar-архива."""
+        """Загружает виртуальную файловую систему из tar-архива"""
         with tarfile.open(tar_path, 'r') as tar:
             for member in tar.getmembers():
                 if member.isfile():  # Проверяем, является ли член архива файлом
@@ -28,8 +29,13 @@ class ShellEmulator:
 
         print(f"Файловая система загружена. {len(self.fs)} файлов и директорий.")
 
-    def ls(self):
-        """Выводит содержимое текущей директории."""
+    def ls(self, path=""):
+        """Выводит содержимое текущей директории"""
+        # Запоминаем текущую директорию
+        working_dir = self.current_dir
+        if len(path) != 0:
+            self.cd(path)
+
         current_dir_files = []
         for file in self.fs:
             # Проверяем, является ли файл в текущей директории или в её поддиректориях
@@ -45,14 +51,15 @@ class ShellEmulator:
                             current_dir_files.append(os.path.basename(file))
                         else:
                             # Вывод имени директории
-                            current_dir_files.append(f"{os.path.basename(file)}")
-
+                            current_dir_files.append(f"{os.path.basename(file)}/")
         # Выводим только файлы текущей директории
         for file in current_dir_files:
             print(file)
+        # Возвращаемся в исходную директорию
+        self.current_dir = working_dir
 
     def cd(self, path):
-        """Изменяет текущий каталог."""
+        """Изменяет текущий каталог"""
         if path == '..':
             # Переход на уровень вверх
             parent_dir = os.path.split(self.current_dir)[0]
@@ -60,14 +67,19 @@ class ShellEmulator:
                 self.current_dir = parent_dir
             else:
                 print("Невозможно перейти на уровень вверх.")
-        else:
+        elif self.current_dir + "/" + path in self.fs:
             # Объединение текущей директории с переданным путем
-            path = '/'+path
+            path = '/' + path
             full_path = (self.current_dir + path)
             if full_path in self.fs:
                 self.current_dir = full_path
             else:
                 print(f"Каталог {path} не найден.")
+        elif 'filesystem/' + path in self.fs:
+            while self.current_dir != 'filesystem':
+                self.cd("..")
+            self.cd(path)
+
 
     def uptime(self):
         boot_time = datetime.datetime.fromtimestamp(psutil.boot_time())
@@ -81,7 +93,7 @@ class ShellEmulator:
         print(f"Время работы в формате ЧЧ:ММ:СС - {int(hours):02}:{int(minutes):02}:{int(seconds):02}")
 
     def changeOwner(self, path, new_owner):
-        """Изменяет владельца файла или директории."""
+        """Изменяет владельца файла или директории"""
         if path in self.fs:
             print(f"Владелец для '{path}' изменён на '{new_owner}'.")
         else:
@@ -99,14 +111,23 @@ class ShellEmulator:
 
 
     def run(self):
-        """Запускает эмулятор в режиме командной строки."""
+        """Запускает эмулятор в режиме командной строки"""
         while True:
+            command = ''
             if self.current_dir == 'filesystem':
-                command = input(f"{self.user}@{self.hostname}:~$ ").split()
+                while command == '':
+                    command = input(f"{self.user}@{self.hostname}:~$ ")
             else:
-                command = input(f"{self.user}@{self.hostname}:{self.current_dir[10::]}$ ").split()
+                while command == '':
+                    command = input(f"{self.user}@{self.hostname}:{self.current_dir[10::]}$ ")
+
+            command = command.split()
+
             if command[0] == 'ls':
-                self.ls()
+                if len(command) > 1:
+                    self.ls(command[1])
+                else:
+                    self.ls()
             elif command[0] == 'cd':
                 if len(command) > 1:
                     self.cd(command[1])
