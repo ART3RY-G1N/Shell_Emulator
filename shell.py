@@ -1,6 +1,7 @@
 import os
 import tarfile
 import argparse
+
 import psutil
 import datetime
 
@@ -54,6 +55,9 @@ class ShellEmulator:
         # Выводим только файлы текущей директории
         for file in current_dir_files:
             print(file)
+        # Возвращаемся в исходную директорию
+        self.current_dir = working_dir
+
         # Возвращаемся в исходную директорию
         self.current_dir = working_dir
 
