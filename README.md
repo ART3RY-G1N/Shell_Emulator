@@ -37,6 +37,8 @@ Bash
 
 python -m unittest shell_emulator.py
 
+![Снимок экрана 2024-10-10 000531](https://github.com/ART3RY-G1N/Shell_Emulator/blob/master/Снимок%20экрана%202024-10-21%20004001.png)
+
 ### Дополнительные сведения
 
 * Для реализации chown требуется доступ к привилегиям суперпользователя.
