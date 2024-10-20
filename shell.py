@@ -76,12 +76,12 @@ class ShellEmulator:
             full_path = (self.current_dir + path)
             if full_path in self.fs:
                 self.current_dir = full_path
-            else:
-                print(f"Каталог {path} не найден.")
         elif 'filesystem/' + path in self.fs:
             while self.current_dir != 'filesystem':
                 self.cd("..")
             self.cd(path)
+        else:
+            print(f"Каталог {path} не найден.")
 
 
     def uptime(self):
@@ -95,22 +95,26 @@ class ShellEmulator:
         minutes, seconds = divmod(remainder, 60)
         print(f"Время работы в формате ЧЧ:ММ:СС - {int(hours):02}:{int(minutes):02}:{int(seconds):02}")
 
+
     def changeOwner(self, path, new_owner):
+        path = path
         """Изменяет владельца файла или директории"""
-        if path in self.fs:
+        if 'filesystem/' + path in self.fs:
             print(f"Владелец для '{path}' изменён на '{new_owner}'.")
         else:
             print(f"Файл или директория '{path}' не найдены.")
 
     def reverse(self, path):
+        path = 'filesystem/' + path
         if path in self.fs:
-            content = self.fs[path]
+            content = self.fs[path].decode('utf-8').split('\n')
             if content is not None:
-                print(content[::-1].decode('utf-8'))
+                for line in content:
+                    print(line[::-1])
             else:
                 print(f"'{path}' - это директория.")
         else:
-            print(f"Файл или директория '{path}' не найдены.")
+            print(f"Файл '{path}' не найден.")
 
 
     def run(self):
